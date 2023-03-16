@@ -11,50 +11,76 @@ class OnbodingScreen extends StatefulWidget {
 }
 
 class _OnbodingScreenState extends State<OnbodingScreen> {
+  late RiveAnimationController _buttonController;
+
+  @override
+  void initState() {
+    _buttonController = OneShotAnimation(
+      'active',
+      autoplay: false,
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          //---------------BACKGROUND-------------------------------------
-          Positioned(
-            width: MediaQuery.of(context).size.width * 1.7,
-            bottom: 200,
-            left: 100,
-            child: Image.asset('assets/backgrounds/Spline.png'),
-          ),
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 20,
-                sigmaY: 10,
-              ),
-            ),
-          ),
-          const RiveAnimation.asset('assets/RiveAssets/shapes.riv'),
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 50,
-                sigmaY: 50,
-              ),
-              child: const SizedBox(),
-            ),
-          ),
+          const _Background(),
           // -------------------BODY-------------------------------------
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Column(
-                children: const [
-                  _TitleAndDescriptionWidget(),
-                  
+                children: [
+                  const _TitleAndDescriptionWidget(),
+                  _ButtonWidget(
+                    buttonController: _buttonController,
+                    press: () => _buttonController.isActive = true,
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Background extends StatelessWidget {
+  const _Background({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          width: MediaQuery.of(context).size.width * 1.7,
+          bottom: 200,
+          left: 100,
+          child: Image.asset('assets/backgrounds/Spline.png'),
+        ),
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 20,
+              sigmaY: 10,
+            ),
+          ),
+        ),
+        const RiveAnimation.asset('assets/RiveAssets/shapes.riv'),
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 50,
+              sigmaY: 50,
+            ),
+            child: const SizedBox(),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -77,6 +103,53 @@ class _TitleAndDescriptionWidget extends StatelessWidget {
               'real apps with Flutter and Swift Complete courses about '
               'the best tools.'),
         ],
+      ),
+    );
+  }
+}
+
+class _ButtonWidget extends StatelessWidget {
+  final RiveAnimationController _buttonController;
+  final VoidCallback press;
+
+  const _ButtonWidget({
+    Key? key,
+    required RiveAnimationController buttonController,
+    required this.press,
+  })  : _buttonController = buttonController,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: press,
+      child: SizedBox(
+        height: 64,
+        width: 260,
+        child: Stack(
+          children: [
+            RiveAnimation.asset(
+              'assets/RiveAssets/button.riv',
+              controllers: [_buttonController],
+            ),
+            Positioned.fill(
+              top: 8,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.arrow_forward),
+                  SizedBox(width: 8),
+                  Text(
+                    'Start the course',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
