@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rive/rive.dart';
 
 Future<Object?> buildShowGeneralDialog(
-    BuildContext context, {
-      required ValueChanged onClosed,
-    }) {
+  BuildContext context, {
+  required ValueChanged onClosed,
+}) {
   return showGeneralDialog(
     context: context,
     barrierLabel: 'Sign in',
     barrierDismissible: true,
     transitionBuilder: (_, animation, __, child) {
-      Tween<Offset> tween =
-      Tween(begin: const Offset(0, -1), end: Offset.zero);
+      Tween<Offset> tween = Tween(begin: const Offset(0, -1), end: Offset.zero);
       return SlideTransition(
         position: tween.animate(CurvedAnimation(
           parent: animation,
@@ -45,44 +45,132 @@ class LoginDialog extends StatelessWidget {
           color: Colors.white.withOpacity(0.94),
           borderRadius: const BorderRadius.all(Radius.circular(40)),
         ),
-        child: Scaffold(
+        child: const Scaffold(
           backgroundColor: Colors.transparent,
-          body: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Column(
-                children: [
-                  const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      fontSize: 34,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      'Access to 240+ hours of content. Learn design and code, by '
-                      'building real apps with Flutter and Swift.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Form(
-                    child: Column(
-                      children: const [
-                        _FormWidget(),
-                        _ButtonWidget(),
-                        _DividerWidget(),
-                        _OtherWaySignInWidget(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              _ExitIconWidget(),
-            ],
-          ),
+          body: _BodyWidget(),
         ),
+      ),
+    );
+  }
+}
+
+class _BodyWidget extends StatefulWidget {
+  const _BodyWidget({Key? key}) : super(key: key);
+
+  @override
+  State<_BodyWidget> createState() => _BodyWidgetState();
+}
+
+class _BodyWidgetState extends State<_BodyWidget> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isShowLoading = false;
+
+  late SMITrigger check;
+  late SMITrigger error;
+  late SMITrigger reset;
+
+  StateMachineController getRiveController(Artboard artboard) {
+    StateMachineController? controller = StateMachineController.fromArtboard(
+      artboard,
+      'State Machine 1',
+    );
+    artboard.addController(controller!);
+    return controller;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Column(
+          children: [
+            const _TitleWidget(),
+            const _DescriptionWidget(),
+            Stack(
+              children: [
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const _FormWidget(),
+                      _ButtonWidget(
+                        onPressed: () {
+                          setState(() {
+                            _isShowLoading = true;
+                          });
+                          if (_formKey.currentState!.validate()) {
+                          } else {}
+                        },
+                      ),
+                      const _DividerWidget(),
+                      const _OtherWaySignInWidget(),
+                    ],
+                  ),
+                ),
+                _isShowLoading
+                    ? Positioned.fill(
+                        child: Column(
+                          children: [
+                            const Spacer(),
+                            SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: RiveAnimation.asset(
+                                'assets/RiveAssets/check.riv',
+                                onInit: (artboard) {
+                                  StateMachineController controller =
+                                      getRiveController(artboard);
+                                  check =
+                                      controller.findSMI('Check') as SMITrigger;
+                                  error =
+                                      controller.findSMI('Error') as SMITrigger;
+                                  reset =
+                                      controller.findSMI('Reset') as SMITrigger;
+                                },
+                              ),
+                            ),
+                            const Spacer(flex: 4),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ],
+            ),
+          ],
+        ),
+        const _ExitIconWidget(),
+      ],
+    );
+  }
+}
+
+class _TitleWidget extends StatelessWidget {
+  const _TitleWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text(
+      'Sign In',
+      style: TextStyle(
+        fontSize: 34,
+        fontFamily: 'Poppins',
+      ),
+    );
+  }
+}
+
+class _DescriptionWidget extends StatelessWidget {
+  const _DescriptionWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Text(
+        'Access to 240+ hours of content. Learn design and code, by '
+        'building real apps with Flutter and Swift.',
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -108,6 +196,13 @@ class _FormWidget extends StatelessWidget {
             bottom: 16,
           ),
           child: TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "";
+              }
+              return null;
+            },
+            onSaved: (email) {},
             decoration: InputDecoration(
               prefixIcon: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -125,6 +220,13 @@ class _FormWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 16),
           child: TextFormField(
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "";
+              }
+              return null;
+            },
+            onSaved: (password) {},
             obscureText: true,
             decoration: InputDecoration(
               prefixIcon: Padding(
@@ -142,7 +244,12 @@ class _FormWidget extends StatelessWidget {
 }
 
 class _ButtonWidget extends StatelessWidget {
-  const _ButtonWidget({Key? key}) : super(key: key);
+  final VoidCallback onPressed;
+
+  const _ButtonWidget({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +259,7 @@ class _ButtonWidget extends StatelessWidget {
         bottom: 24,
       ),
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: onPressed,
         icon: const Icon(
           CupertinoIcons.arrow_right,
           color: Colors.red,
