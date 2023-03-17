@@ -33,11 +33,22 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Spacer(),
                   const _TitleAndDescriptionWidget(),
+                  const Spacer(flex: 2),
                   _ButtonWidget(
                     buttonController: _buttonController,
                     press: () => _buttonController.isActive = true,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      'Purchase includes access to 30+ courses, 240+ premium '
+                      'tutorial, 120+ hours of videos, source files or '
+                      'certificates.',
+                    ),
                   ),
                 ],
               ),
