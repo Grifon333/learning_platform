@@ -30,9 +30,8 @@ flutter:
   assets:
     - assets/RiveAssets/
     - assets/backgrounds/
-#    - assets/avatars
-
-#    - assets/icons
+    - assets/avatars/
+    - assets/icons/
 
   fonts:
     - family: Inter

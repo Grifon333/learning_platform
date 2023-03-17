@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:learning_platform/screens/onboding/login_dialog.dart';
 import 'package:rive/rive.dart';
 
 class OnbodingScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class OnbodingScreen extends StatefulWidget {
 
 class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _buttonController;
+  bool _isSingInDialogShow = false;
 
   @override
   void initState() {
@@ -28,28 +30,52 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
       body: Stack(
         children: [
           const _Background(),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Spacer(),
-                  const _TitleAndDescriptionWidget(),
-                  const Spacer(flex: 2),
-                  _ButtonWidget(
-                    buttonController: _buttonController,
-                    press: () => _buttonController.isActive = true,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      'Purchase includes access to 30+ courses, 240+ premium '
-                      'tutorial, 120+ hours of videos, source files or '
-                      'certificates.',
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 240),
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            top: _isSingInDialogShow ? -50 : 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Spacer(),
+                    const _TitleAndDescriptionWidget(),
+                    const Spacer(flex: 2),
+                    _ButtonWidget(
+                      buttonController: _buttonController,
+                      press: () {
+                        _buttonController.isActive = true;
+                        Future.delayed(
+                          const Duration(milliseconds: 800),
+                          () {
+                            setState(() {
+                              _isSingInDialogShow = true;
+                            });
+                            buildShowGeneralDialog(
+                              context,
+                              onClosed: (_) {
+                                setState(() {
+                                  _isSingInDialogShow = false;
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
                     ),
-                  ),
-                ],
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'Purchase includes access to 30+ courses, 240+ premium '
+                        'tutorial, 120+ hours of videos, source files or '
+                        'certificates.',
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
