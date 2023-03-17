@@ -28,7 +28,6 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
       body: Stack(
         children: [
           const _Background(),
-          // -------------------BODY-------------------------------------
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
