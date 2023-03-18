@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:learning_platform/screens/onboding/onboding_screen.dart';
+import 'package:learning_platform/screens/start_screen/start_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           errorBorder: defaultInputBorder,
         ),
       ),
-      home: const OnbodingScreen(),
+      home: const StartScreen(),
     );
   }
 }

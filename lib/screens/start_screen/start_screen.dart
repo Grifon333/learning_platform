@@ -1,17 +1,27 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:learning_platform/screens/onboding/login_dialog.dart';
+import 'package:learning_platform/screens/login_dialog/login_dialog.dart';
 import 'package:rive/rive.dart';
 
-class OnbodingScreen extends StatefulWidget {
-  const OnbodingScreen({Key? key}) : super(key: key);
+class StartScreen extends StatelessWidget {
+  const StartScreen({Key? key}) : super(key: key);
 
   @override
-  State<OnbodingScreen> createState() => _OnbodingScreenState();
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: _BodyWidget(),
+    );
+  }
 }
 
-class _OnbodingScreenState extends State<OnbodingScreen> {
+class _BodyWidget extends StatefulWidget {
+  const _BodyWidget({Key? key}) : super(key: key);
+
+  @override
+  State<_BodyWidget> createState() => _BodyWidgetState();
+}
+
+class _BodyWidgetState extends State<_BodyWidget> {
   late RiveAnimationController _buttonController;
   bool _isSingInDialogShow = false;
 
@@ -26,61 +36,59 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          const _Background(),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 240),
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            top: _isSingInDialogShow ? -50 : 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Spacer(),
-                    const _TitleAndDescriptionWidget(),
-                    const Spacer(flex: 2),
-                    _ButtonWidget(
-                      buttonController: _buttonController,
-                      press: () {
-                        _buttonController.isActive = true;
-                        Future.delayed(
-                          const Duration(milliseconds: 800),
-                          () {
-                            setState(() {
-                              _isSingInDialogShow = true;
-                            });
-                            buildShowGeneralDialog(
-                              context,
-                              onClosed: (_) {
-                                setState(() {
-                                  _isSingInDialogShow = false;
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
+    return Stack(
+      children: [
+        const _Background(),
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 240),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          top: _isSingInDialogShow ? -50 : 0,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Spacer(),
+                  const _TitleAndDescriptionWidget(),
+                  const Spacer(flex: 2),
+                  _ButtonWidget(
+                    buttonController: _buttonController,
+                    press: () {
+                      _buttonController.isActive = true;
+                      Future.delayed(
+                        const Duration(milliseconds: 800),
+                        () {
+                          setState(() {
+                            _isSingInDialogShow = true;
+                          });
+                          buildShowGeneralDialog(
+                            context,
+                            onClosed: (_) {
+                              setState(() {
+                                _isSingInDialogShow = false;
+                              });
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      'Purchase includes access to 30+ courses, 240+ premium '
+                      'tutorial, 120+ hours of videos, source files or '
+                      'certificates.',
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Text(
-                        'Purchase includes access to 30+ courses, 240+ premium '
-                        'tutorial, 120+ hours of videos, source files or '
-                        'certificates.',
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
