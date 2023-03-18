@@ -79,6 +79,26 @@ class _BodyWidgetState extends State<_BodyWidget> {
     return controller;
   }
 
+  void onPressed() {
+    setState(() {
+      _isShowLoading = true;
+    });
+    Future.delayed(
+      const Duration(seconds: 1),
+      () {
+        _formKey.currentState!.validate() ? check.fire() : error.fire();
+        Future.delayed(
+          const Duration(seconds: 2),
+          () {
+            setState(() {
+              _isShowLoading = false;
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -95,39 +115,7 @@ class _BodyWidgetState extends State<_BodyWidget> {
                   child: Column(
                     children: [
                       const FormWidget(),
-                      ButtonWidget(
-                        onPressed: () {
-                          setState(() {
-                            _isShowLoading = true;
-                          });
-                          Future.delayed(
-                            const Duration(seconds: 1),
-                            () {
-                              if (_formKey.currentState!.validate()) {
-                                check.fire();
-                                Future.delayed(
-                                  const Duration(seconds: 2),
-                                      () {
-                                    setState(() {
-                                      _isShowLoading = false;
-                                    });
-                                  },
-                                );
-                              } else {
-                                error.fire();
-                                Future.delayed(
-                                  const Duration(seconds: 2),
-                                  () {
-                                    setState(() {
-                                      _isShowLoading = false;
-                                    });
-                                  },
-                                );
-                              }
-                            },
-                          );
-                        },
-                      ),
+                      ButtonWidget(onPressed: onPressed),
                       const DividerWidget(),
                       const OtherWaySignInWidget(),
                     ],
@@ -157,5 +145,3 @@ class _BodyWidgetState extends State<_BodyWidget> {
     );
   }
 }
-
-
