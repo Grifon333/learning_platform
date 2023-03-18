@@ -65,10 +65,12 @@ class _BodyWidget extends StatefulWidget {
 class _BodyWidgetState extends State<_BodyWidget> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isShowLoading = false;
+  bool _isShowConfetti = false;
 
   late SMITrigger check;
   late SMITrigger error;
   late SMITrigger reset;
+  late SMITrigger confetti;
 
   StateMachineController getRiveController(Artboard artboard) {
     StateMachineController? controller = StateMachineController.fromArtboard(
@@ -82,19 +84,33 @@ class _BodyWidgetState extends State<_BodyWidget> {
   void onPressed() {
     setState(() {
       _isShowLoading = true;
+      _isShowConfetti = true;
     });
     Future.delayed(
       const Duration(seconds: 1),
       () {
-        _formKey.currentState!.validate() ? check.fire() : error.fire();
-        Future.delayed(
-          const Duration(seconds: 2),
-          () {
-            setState(() {
-              _isShowLoading = false;
-            });
-          },
-        );
+        if (_formKey.currentState!.validate()) {
+          check.fire();
+          Future.delayed(
+            const Duration(seconds: 2),
+            () {
+              setState(() {
+                _isShowLoading = false;
+              });
+              confetti.fire();
+            },
+          );
+        } else {
+          error.fire();
+          Future.delayed(
+            const Duration(seconds: 2),
+            () {
+              setState(() {
+                _isShowLoading = false;
+              });
+            },
+          );
+        }
       },
     );
   }
@@ -136,6 +152,22 @@ class _BodyWidgetState extends State<_BodyWidget> {
                         ),
                       )
                     : const SizedBox.shrink(),
+                _isShowConfetti
+                    ? CustomPositionedWidget(
+                        child: Transform.scale(
+                          scale: 7,
+                          child: RiveAnimation.asset(
+                            'assets/RiveAssets/confetti.riv',
+                            onInit: (artboard) {
+                              StateMachineController controller =
+                                  getRiveController(artboard);
+                              confetti = controller.findSMI('Trigger explosion')
+                                  as SMITrigger;
+                            },
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink()
               ],
             ),
           ],

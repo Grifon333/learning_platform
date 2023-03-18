@@ -150,7 +150,7 @@ class CustomPositionedWidget extends StatelessWidget {
 
   const CustomPositionedWidget({
     Key? key,
-    required this.size,
+    this.size = 100,
     required this.child,
   }) : super(key: key);
 
