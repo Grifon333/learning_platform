@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learning_platform/screens/dashboard_screen/dashboard_screen.dart';
+import 'package:learning_platform/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 
 import 'elements.dart';
@@ -72,15 +73,6 @@ class _BodyWidgetState extends State<_BodyWidget> {
   late SMITrigger reset;
   late SMITrigger confetti;
 
-  StateMachineController getRiveController(Artboard artboard) {
-    StateMachineController? controller = StateMachineController.fromArtboard(
-      artboard,
-      'State Machine 1',
-    );
-    artboard.addController(controller!);
-    return controller;
-  }
-
   void onPressed() {
     setState(() {
       _isShowLoading = true;
@@ -98,6 +90,14 @@ class _BodyWidgetState extends State<_BodyWidget> {
                 _isShowLoading = false;
               });
               confetti.fire();
+              Future.delayed(
+                const Duration(seconds: 1),
+                () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => DashboardScreen()),
+                  );
+                },
+              );
             },
           );
         } else {
@@ -144,7 +144,10 @@ class _BodyWidgetState extends State<_BodyWidget> {
                           'assets/RiveAssets/check.riv',
                           onInit: (artboard) {
                             StateMachineController controller =
-                                getRiveController(artboard);
+                                RiveUtils.getRiveController(
+                              artboard: artboard,
+                              stateMachineName: 'State Machine 1',
+                            );
                             check = controller.findSMI('Check') as SMITrigger;
                             error = controller.findSMI('Error') as SMITrigger;
                             reset = controller.findSMI('Reset') as SMITrigger;
@@ -160,7 +163,10 @@ class _BodyWidgetState extends State<_BodyWidget> {
                             'assets/RiveAssets/confetti.riv',
                             onInit: (artboard) {
                               StateMachineController controller =
-                                  getRiveController(artboard);
+                                  RiveUtils.getRiveController(
+                                artboard: artboard,
+                                stateMachineName: 'State Machine 1',
+                              );
                               confetti = controller.findSMI('Trigger explosion')
                                   as SMITrigger;
                             },
