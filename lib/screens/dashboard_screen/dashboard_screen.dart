@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:learning_platform/constants.dart';
+import 'package:learning_platform/screens/home_screen/home_screen.dart';
 import 'package:learning_platform/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 
@@ -9,6 +10,9 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
+      resizeToAvoidBottomInset: false,
+      extendBody: true,
+      body: HomeScreen(),
       bottomNavigationBar: _BottomBarWidget(),
     );
   }
