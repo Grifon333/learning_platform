@@ -1,19 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:learning_platform/constants.dart';
 import 'package:learning_platform/screens/home_screen/home_screen.dart';
+import 'package:learning_platform/screens/side_menu/side_menu.dart';
 import 'package:learning_platform/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  late SMIBool _isClose;
+  bool _isOpenSideBar = false;
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBody: true,
-      body: HomeScreen(),
-      bottomNavigationBar: _BottomBarWidget(),
+      body: Stack(
+        children: [
+          const SideMenuWidget(),
+          Transform.translate(
+            offset: Offset(_isOpenSideBar ? 288 : 0, 0),
+            child: const HomeScreen(),
+          ),
+          _MenuButtonWidget(
+            onTap: () {
+              _isClose.value ^= true;
+              setState(() {
+                _isOpenSideBar = !_isClose.value;
+              });
+            },
+            onInit: (artboard) {
+              StateMachineController controller = RiveUtils.getRiveController(
+                artboard: artboard,
+                stateMachineName: 'State Machine',
+              );
+              _isClose = controller.findSMI('isOpen') as SMIBool;
+              _isClose.value = true;
+            },
+          ),
+        ],
+      ),
+      bottomNavigationBar: const _BottomBarWidget(),
     );
   }
 }
@@ -138,17 +171,44 @@ class _IconOfBottomNavigation extends StatelessWidget {
   }
 }
 
-class RiveAsset {
-  String scr, artboard, stateMachineName;
-  late SMIBool input;
+class _MenuButtonWidget extends StatelessWidget {
+  final VoidCallback onTap;
+  final ValueChanged<Artboard> onInit;
 
-  RiveAsset({
-    required this.scr,
-    required this.artboard,
-    required this.stateMachineName,
-  });
+  const _MenuButtonWidget({
+    Key? key,
+    required this.onTap,
+    required this.onInit,
+  }) : super(key: key);
 
-  set setInput(SMIBool status) => input = status;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SafeArea(
+        child: Container(
+          height: 40,
+          width: 40,
+          margin: const EdgeInsets.only(left: 12),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                offset: Offset(0, 3),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: RiveAnimation.asset(
+            'assets/RiveAssets/menu_button.riv',
+            onInit: onInit,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 List<RiveAsset> bottomNavigation = [

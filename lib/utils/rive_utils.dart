@@ -13,3 +13,18 @@ class RiveUtils {
     return controller;
   }
 }
+
+class RiveAsset {
+  String scr, artboard, stateMachineName;
+  String? title;
+  late SMIBool input;
+
+  RiveAsset({
+    required this.scr,
+    required this.artboard,
+    required this.stateMachineName,
+    this.title,
+  });
+
+  set setInput(SMIBool status) => input = status;
+}
