@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:learning_platform/constants.dart';
 import 'package:learning_platform/screens/home_screen/home_screen.dart';
@@ -12,41 +14,108 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
   late SMIBool _isClose;
   bool _isOpenSideBar = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addListener(() {
+        setState(() {});
+      });
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+    _scaleAnimation = Tween<double>(begin: 1, end: 0.8).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor2,
       resizeToAvoidBottomInset: false,
       extendBody: true,
       body: Stack(
         children: [
-          const SideMenuWidget(),
-          Transform.translate(
-            offset: Offset(_isOpenSideBar ? 288 : 0, 0),
-            child: const HomeScreen(),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.fastOutSlowIn,
+            width: 288,
+            left: _isOpenSideBar ? 0 : -288,
+            height: MediaQuery.of(context).size.height,
+            child: const SideMenuWidget(),
           ),
-          _MenuButtonWidget(
-            onTap: () {
-              _isClose.value ^= true;
-              setState(() {
-                _isOpenSideBar = !_isClose.value;
-              });
-            },
-            onInit: (artboard) {
-              StateMachineController controller = RiveUtils.getRiveController(
-                artboard: artboard,
-                stateMachineName: 'State Machine',
-              );
-              _isClose = controller.findSMI('isOpen') as SMIBool;
-              _isClose.value = true;
-            },
+          Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(_animation.value - 30 * _animation.value * pi / 180),
+            child: Transform.translate(
+              offset: Offset(_animation.value * 265, 0),
+              child: Transform.scale(
+                scale: _scaleAnimation.value,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: const HomeScreen(),
+                ),
+              ),
+            ),
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            top: 16,
+            left: _isOpenSideBar ? 220 : 0,
+            curve: Curves.fastOutSlowIn,
+            child: _MenuButtonWidget(
+              onTap: () {
+                _isClose.value ^= true;
+                if (_isOpenSideBar) {
+                  _animationController.reverse();
+                } else {
+                  _animationController.forward();
+                }
+                setState(() {
+                  _isOpenSideBar = !_isClose.value;
+                });
+              },
+              onInit: (artboard) {
+                StateMachineController controller = RiveUtils.getRiveController(
+                  artboard: artboard,
+                  stateMachineName: 'State Machine',
+                );
+                _isClose = controller.findSMI('isOpen') as SMIBool;
+                _isClose.value = true;
+              },
+            ),
           ),
         ],
       ),
-      bottomNavigationBar: const _BottomBarWidget(),
+      bottomNavigationBar: Transform.translate(
+        offset: Offset(0, 100 * _animation.value),
+        child: const _BottomBarWidget(),
+      ),
     );
   }
 }
